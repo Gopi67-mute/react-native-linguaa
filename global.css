@@ -3,3 +3,96 @@
 @import "tailwindcss/utilities.css";
 
 @import "nativewind/theme";
+
+/* ------------------------------------------------------------------ */
+/* Design tokens — Lingua design system (prompt_material/01-design-system.png) */
+/* Mirrored in theme/colors.ts, theme/fonts.ts and theme/typography.ts.        */
+/* ------------------------------------------------------------------ */
+
+@theme {
+  /* Brand / primary */
+  --color-primary: #6c4ef5; /* Lingua Purple */
+  --color-primary-deep: #5b3bf6; /* Lingua Deep Purple */
+  --color-blue: #4d8bff; /* Lingua Blue */
+  --color-green: #21c16b; /* Lingua Green */
+
+  /* Semantic */
+  --color-success: #21c16b;
+  --color-warning: #ffc800;
+  --color-streak: #ff8a00;
+  --color-error: #ff4d4f;
+  --color-info: #4d8bff;
+
+  /* Neutrals */
+  --color-foreground: #0d132b; /* Text / Primary */
+  --color-muted-foreground: #6b7280; /* Text / Secondary */
+  --color-border: #e5e7eb;
+  --color-surface: #f6f7fb;
+  --color-background: #ffffff;
+
+  /* Poppins font faces (each weight is its own font file, see app/_layout.tsx) */
+  --font-poppins-regular: "Poppins-Regular";
+  --font-poppins-medium: "Poppins-Medium";
+  --font-poppins-semibold: "Poppins-SemiBold";
+  --font-poppins-bold: "Poppins-Bold";
+}
+
+/* Poppins is the app's default typeface everywhere, overriding NativeWind's
+   platform system-font default. Must come after `@import "nativewind/theme"`
+   above (unlayered :root rules win over the same rule earlier in source order). */
+:root {
+  --font-sans: "Poppins-Regular";
+}
+
+/* ------------------------------------------------------------------ */
+/* Typography scale utilities (text-h1 … text-caption)                */
+/* Values match the TYPOGRAPHY spec in the design system reference.   */
+/* ------------------------------------------------------------------ */
+
+@utility text-h1 {
+  font-family: var(--font-poppins-bold);
+  font-size: 32px;
+  line-height: 1.2;
+}
+
+@utility text-h2 {
+  font-family: var(--font-poppins-semibold);
+  font-size: 24px;
+  line-height: 1.3;
+}
+
+@utility text-h3 {
+  font-family: var(--font-poppins-semibold);
+  font-size: 20px;
+  line-height: 1.3;
+}
+
+@utility text-h4 {
+  font-family: var(--font-poppins-medium);
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+@utility text-body-lg {
+  font-family: var(--font-poppins-regular);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+@utility text-body-md {
+  font-family: var(--font-poppins-regular);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+@utility text-body-sm {
+  font-family: var(--font-poppins-regular);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+@utility text-caption {
+  font-family: var(--font-poppins-regular);
+  font-size: 11px;
+  line-height: 1.4;
+}
