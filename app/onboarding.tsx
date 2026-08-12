@@ -1,12 +1,30 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  StyleSheet,
+  Text,
+  useWindowDimensions,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { images } from "@/constants/images";
 import { colors } from "@/theme";
 
+const MASCOT_MAX_WIDTH = 340;
+const MASCOT_ASPECT_RATIO = 420 / 340;
+const HORIZONTAL_PADDING = 24 * 2; // matches `px-6` on the screen container
+
 export default function Onboarding() {
+  const { width: windowWidth } = useWindowDimensions();
+  const mascotWidth = Math.min(
+    MASCOT_MAX_WIDTH,
+    windowWidth - HORIZONTAL_PADDING
+  );
+  const mascotHeight = mascotWidth * MASCOT_ASPECT_RATIO;
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <View className="flex-1 px-6">
@@ -28,7 +46,7 @@ export default function Onboarding() {
         </View>
 
         <View className="flex-1 items-center justify-center">
-          <View style={styles.mascotWrapper}>
+          <View style={[styles.mascotWrapper, { width: mascotWidth }]}>
             <View
               className="absolute top-20 left-0 rounded-2xl rounded-bl-md bg-[#EAF2FF] px-4 py-2 z-10"
               style={styles.bubbleShadow}
@@ -52,7 +70,10 @@ export default function Onboarding() {
 
             <Image
               source={images.mascotWelcome}
-              style={styles.mascotImage}
+              style={[
+                styles.mascotImage,
+                { width: mascotWidth, height: mascotHeight },
+              ]}
               resizeMode="contain"
             />
           </View>
@@ -79,8 +100,8 @@ export default function Onboarding() {
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
   logoImage: { width: 36, height: 36 },
-  mascotWrapper: { position: "relative", width: 340, alignItems: "center" },
-  mascotImage: { width: 340, height: 420, marginTop: 40 },
+  mascotWrapper: { position: "relative", alignItems: "center" },
+  mascotImage: { marginTop: 40 },
   bubbleShadow: {
     shadowColor: colors.foreground,
     shadowOffset: { width: 0, height: 2 },
