@@ -80,7 +80,7 @@ export default function Onboarding() {
         </View>
 
         <Pressable
-          onPress={() => router.back()}
+          onPress={() => router.push("/sign-up")}
           className="flex-row items-center justify-between bg-primary-deep rounded-full px-6 py-4 mb-6"
           style={styles.buttonShadow}
         >
