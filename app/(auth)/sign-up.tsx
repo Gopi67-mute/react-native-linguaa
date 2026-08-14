@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useSignUp } from "@clerk/expo";
+import { useSSO } from "@clerk/expo/experimental";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import {
@@ -19,14 +21,83 @@ import { SocialButton } from "@/components/auth/SocialButton";
 import { VerificationModal } from "@/components/auth/VerificationModal";
 import { colors, fontFamily } from "@/theme";
 
+type OAuthStrategy = "oauth_google" | "oauth_facebook" | "oauth_apple";
+
 export default function SignUp() {
+  const { signUp } = useSignUp();
+  const { startSSOFlow } = useSSO();
+
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const handleSignUp = async () => {
+    setFormError(null);
+    setIsSubmitting(true);
+
+    const { error } = await signUp.create({ emailAddress: email });
+    if (error) {
+      setFormError(error.longMessage ?? error.message);
+      setIsSubmitting(false);
+      return;
+    }
+
+    const { error: sendError } = await signUp.verifications.sendEmailCode();
+    setIsSubmitting(false);
+    if (sendError) {
+      setFormError(sendError.longMessage ?? sendError.message);
+      return;
+    }
+
+    setIsVerifying(true);
+  };
+
+  const handleVerify = async (code: string) => {
+    const { error } = await signUp.verifications.verifyEmailCode({ code });
+    if (error) {
+      return error.longMessage ?? error.message;
+    }
+
+    console.log("[sign-up] status after verifyEmailCode:", signUp.status);
+    console.log("[sign-up] requiredFields:", signUp.requiredFields);
+    console.log("[sign-up] missingFields:", signUp.missingFields);
+    console.log("[sign-up] unverifiedFields:", signUp.unverifiedFields);
+
+    if (signUp.status !== "complete") {
+      if (signUp.missingFields.length > 0) {
+        return `Sign-up is missing required fields: ${signUp.missingFields.join(", ")}.`;
+      }
+      if (signUp.unverifiedFields.length > 0) {
+        return `Still need to verify: ${signUp.unverifiedFields.join(", ")}.`;
+      }
+      return `Sign-up isn't complete yet (status: ${signUp.status}).`;
+    }
+
+    const { error: finalizeError } = await signUp.finalize();
+    if (finalizeError) {
+      return finalizeError.longMessage ?? finalizeError.message;
+    }
+
+    return null;
+  };
 
   const handleVerified = () => {
     setIsVerifying(false);
     router.replace("/");
+  };
+
+  const handleSocialAuth = async (strategy: OAuthStrategy) => {
+    setFormError(null);
+    try {
+      const { createdSessionId } = await startSSOFlow({ strategy });
+      if (createdSessionId) {
+        router.replace("/");
+      }
+    } catch (err) {
+      console.error("Social sign-up error:", err);
+      setFormError("Something went wrong. Please try again.");
+    }
   };
 
   return (
@@ -65,20 +136,17 @@ export default function SignUp() {
               placeholder="alex@gmail.com"
               keyboardType="email-address"
             />
-            <AuthTextField
-              label="Password"
-              value={password}
-              onChangeText={setPassword}
-              placeholder="********"
-              secureEntry
-            />
           </View>
+
+          {formError && (
+            <Text className="text-body-sm text-error mt-3">{formError}</Text>
+          )}
 
           <View className="mt-6">
             <GradientButton
               label="Sign Up"
-              onPress={() => setIsVerifying(true)}
-              disabled={!email || !password}
+              onPress={handleSignUp}
+              disabled={!email || isSubmitting}
             />
           </View>
 
@@ -95,19 +163,19 @@ export default function SignUp() {
               icon="logo-google"
               iconColor="#4285F4"
               label="Continue with Google"
-              onPress={() => {}}
+              onPress={() => handleSocialAuth("oauth_google")}
             />
             <SocialButton
               icon="logo-facebook"
               iconColor="#1877F2"
               label="Continue with Facebook"
-              onPress={() => {}}
+              onPress={() => handleSocialAuth("oauth_facebook")}
             />
             <SocialButton
               icon="logo-apple"
               iconColor={colors.foreground}
               label="Continue with Apple"
-              onPress={() => {}}
+              onPress={() => handleSocialAuth("oauth_apple")}
             />
           </View>
 
@@ -124,6 +192,9 @@ export default function SignUp() {
               </Text>
             </Pressable>
           </View>
+
+          {/* Required for sign-up flows on Expo web. Clerk skips the browser CAPTCHA on iOS and Android */}
+          <View nativeID="clerk-captcha" />
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -132,6 +203,7 @@ export default function SignUp() {
         email={email}
         onClose={() => setIsVerifying(false)}
         onVerified={handleVerified}
+        onVerify={handleVerify}
       />
     </SafeAreaView>
   );

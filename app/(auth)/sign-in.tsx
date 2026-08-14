@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useSignIn } from "@clerk/expo";
+import { useSSO } from "@clerk/expo/experimental";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import {
@@ -19,13 +21,65 @@ import { SocialButton } from "@/components/auth/SocialButton";
 import { VerificationModal } from "@/components/auth/VerificationModal";
 import { colors, fontFamily } from "@/theme";
 
+type OAuthStrategy = "oauth_google" | "oauth_facebook" | "oauth_apple";
+
 export default function SignIn() {
+  const { signIn } = useSignIn();
+  const { startSSOFlow } = useSSO();
+
   const [email, setEmail] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+
+  const handleSignIn = async () => {
+    setFormError(null);
+    setIsSubmitting(true);
+
+    const { error } = await signIn.emailCode.sendCode({ emailAddress: email });
+    setIsSubmitting(false);
+    if (error) {
+      setFormError(error.longMessage ?? error.message);
+      return;
+    }
+
+    setIsVerifying(true);
+  };
+
+  const handleVerify = async (code: string) => {
+    const { error } = await signIn.emailCode.verifyCode({ code });
+    if (error) {
+      return error.longMessage ?? error.message;
+    }
+
+    if (signIn.status !== "complete") {
+      return "Something went wrong. Please try again.";
+    }
+
+    const { error: finalizeError } = await signIn.finalize();
+    if (finalizeError) {
+      return finalizeError.longMessage ?? finalizeError.message;
+    }
+
+    return null;
+  };
 
   const handleVerified = () => {
     setIsVerifying(false);
     router.replace("/");
+  };
+
+  const handleSocialAuth = async (strategy: OAuthStrategy) => {
+    setFormError(null);
+    try {
+      const { createdSessionId } = await startSSOFlow({ strategy });
+      if (createdSessionId) {
+        router.replace("/");
+      }
+    } catch (err) {
+      console.error("Social sign-in error:", err);
+      setFormError("Something went wrong. Please try again.");
+    }
   };
 
   return (
@@ -64,11 +118,15 @@ export default function SignIn() {
             />
           </View>
 
+          {formError && (
+            <Text className="text-body-sm text-error mt-3">{formError}</Text>
+          )}
+
           <View className="mt-6">
             <GradientButton
               label="Sign In"
-              onPress={() => setIsVerifying(true)}
-              disabled={!email}
+              onPress={handleSignIn}
+              disabled={!email || isSubmitting}
             />
           </View>
 
@@ -85,19 +143,19 @@ export default function SignIn() {
               icon="logo-google"
               iconColor="#4285F4"
               label="Continue with Google"
-              onPress={() => {}}
+              onPress={() => handleSocialAuth("oauth_google")}
             />
             <SocialButton
               icon="logo-facebook"
               iconColor="#1877F2"
               label="Continue with Facebook"
-              onPress={() => {}}
+              onPress={() => handleSocialAuth("oauth_facebook")}
             />
             <SocialButton
               icon="logo-apple"
               iconColor={colors.foreground}
               label="Continue with Apple"
-              onPress={() => {}}
+              onPress={() => handleSocialAuth("oauth_apple")}
             />
           </View>
 
@@ -122,6 +180,7 @@ export default function SignIn() {
         email={email}
         onClose={() => setIsVerifying(false)}
         onVerified={handleVerified}
+        onVerify={handleVerify}
       />
     </SafeAreaView>
   );

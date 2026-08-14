@@ -19,6 +19,7 @@ type VerificationModalProps = {
   email: string;
   onClose: () => void;
   onVerified: () => void;
+  onVerify: (code: string) => Promise<string | null>;
 };
 
 export function VerificationModal({
@@ -26,24 +27,39 @@ export function VerificationModal({
   email,
   onClose,
   onVerified,
+  onVerify,
 }: VerificationModalProps) {
   const [code, setCode] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isChecking, setIsChecking] = useState(false);
   const inputRef = useRef<TextInput>(null);
 
   useEffect(() => {
     if (!visible) return;
 
     setCode("");
+    setError(null);
+    setIsChecking(false);
     const focusTimeout = setTimeout(() => inputRef.current?.focus(), 300);
     return () => clearTimeout(focusTimeout);
   }, [visible]);
 
-  const handleChangeText = (text: string) => {
+  const handleChangeText = async (text: string) => {
     const digitsOnly = text.replace(/[^0-9]/g, "").slice(0, CODE_LENGTH);
     setCode(digitsOnly);
+    setError(null);
 
     if (digitsOnly.length === CODE_LENGTH) {
-      onVerified();
+      setIsChecking(true);
+      const errorMessage = await onVerify(digitsOnly);
+      setIsChecking(false);
+
+      if (errorMessage) {
+        setError(errorMessage);
+        setCode("");
+      } else {
+        onVerified();
+      }
     }
   };
 
@@ -86,7 +102,11 @@ export function VerificationModal({
                   <View
                     key={index}
                     className={`w-12 h-14 rounded-2xl border items-center justify-center ${
-                      isActive ? "border-primary" : "border-border"
+                      error
+                        ? "border-error"
+                        : isActive
+                          ? "border-primary"
+                          : "border-border"
                     }`}
                   >
                     <Text className="text-h2 text-foreground">{digit ?? ""}</Text>
@@ -95,12 +115,17 @@ export function VerificationModal({
               })}
             </Pressable>
 
+            {error && (
+              <Text className="text-body-sm text-error mt-2">{error}</Text>
+            )}
+
             <TextInput
               ref={inputRef}
               value={code}
               onChangeText={handleChangeText}
               keyboardType="number-pad"
               maxLength={CODE_LENGTH}
+              editable={!isChecking}
               style={{ position: "absolute", opacity: 0, height: 1, width: 1 }}
             />
           </View>
