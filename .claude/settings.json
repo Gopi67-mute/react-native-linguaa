@@ -1,12 +1,4 @@
 {
-  "permissions": {
-    "allow": [
-      "Bash(NODE_PATH=\"C:\\\\Users\\\\PALANI\\\\AppData\\\\Local\\\\npm-cache\\\\_npx\\\\e41f203b7505f1fb\\\\node_modules\" node \"C:\\\\Users\\\\PALANI\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-PALANI-Duoligo\\\\48054955-d29f-4ab0-9c66-99f2741cadf9\\\\scratchpad\\\\check-scroll.js\")",
-      "Bash(NODE_PATH=\"C:\\\\Users\\\\PALANI\\\\AppData\\\\Local\\\\npm-cache\\\\_npx\\\\e41f203b7505f1fb\\\\node_modules\" node \"C:\\\\Users\\\\PALANI\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-PALANI-Duoligo\\\\48054955-d29f-4ab0-9c66-99f2741cadf9\\\\scratchpad\\\\check-scroll2.js\")",
-      "Bash(NODE_PATH=\"C:\\\\Users\\\\PALANI\\\\AppData\\\\Local\\\\npm-cache\\\\_npx\\\\e41f203b7505f1fb\\\\node_modules\" node \"C:\\\\Users\\\\PALANI\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-PALANI-Duoligo\\\\48054955-d29f-4ab0-9c66-99f2741cadf9\\\\scratchpad\\\\check-heights.js\")",
-      "Bash(NODE_PATH=\"C:\\\\Users\\\\PALANI\\\\AppData\\\\Local\\\\npm-cache\\\\_npx\\\\e41f203b7505f1fb\\\\node_modules\" node \"C:\\\\Users\\\\PALANI\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--Users-PALANI-Duoligo\\\\48054955-d29f-4ab0-9c66-99f2741cadf9\\\\scratchpad\\\\check-list-scroll.js\")"
-    ]
-  },
   "enabledPlugins": {
     "expo@claude-plugins-official": true
   }

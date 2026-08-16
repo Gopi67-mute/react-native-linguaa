@@ -26,7 +26,7 @@ export default function Index() {
       <Text className="text-h1 mb-2 text-primary-deep">
         You&apos;re signed in as {user?.firstName ?? "User"}!
       </Text>
-      <Text className="text-body-lg text--foreground mb-10 text-center">
+      <Text className="text-body-lg text-foreground mb-10 text-center">
         {user?.primaryEmailAddress?.emailAddress ?? "No email on file"}
       </Text>
       <GradientButton label="Sign Out" onPress={handleSignOut} />
