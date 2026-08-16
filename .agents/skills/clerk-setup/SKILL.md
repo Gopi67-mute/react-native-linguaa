@@ -4,7 +4,7 @@ description: Add Clerk authentication to any project by following the official q
   guides.
 license: MIT
 allowed-tools: WebFetch
-compatibility: Requires NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY and CLERK_SECRET_KEY (or framework-specific equivalents like VITE_CLERK_PUBLISHABLE_KEY for Vite-based apps). Keys can be auto-generated via Keyless on first SDK initialization, or pulled from the Clerk Dashboard. Requires Node.js 20.9.0 or higher.
+compatibility: Client-only integrations (React SPA, Expo, vanilla JS) require only a framework-specific publishable key (e.g. NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY, VITE_CLERK_PUBLISHABLE_KEY, EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY); CLERK_SECRET_KEY is required only for server-side Clerk operations (Next.js middleware/auth(), Express/Fastify backends, etc). Keys can be auto-generated via Keyless on first SDK initialization, or pulled from the Clerk Dashboard. Requires Node.js 20.9.0 or higher.
 metadata:
   author: clerk
   version: 2.3.0

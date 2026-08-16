@@ -245,8 +245,8 @@ clerk env pull
 # Pull production keys
 clerk env pull --instance prod
 
-# Target a specific file
-clerk env pull --file .env
+# Target a specific file (use a gitignored name, e.g. matching `.env*.local`)
+clerk env pull --file .env.staging.local
 ```
 
 `env pull` merges into the existing file: existing Clerk keys are updated in place; new ones are appended under a `# Clerk` header; everything else is preserved.
