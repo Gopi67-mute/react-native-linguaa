@@ -15,10 +15,14 @@ import { GradientButton } from "@/components/auth/GradientButton";
 import { LanguageCard } from "@/components/language/LanguageCard";
 import { images } from "@/constants/images";
 import { languages } from "@/data/languages";
+import { useLanguageStore } from "@/store/language-store";
 import { colors } from "@/theme";
 import type { LanguageId } from "@/types/learning";
 
 export default function LanguageSelection() {
+  const setSelectedLanguage = useLanguageStore(
+    (state) => state.setSelectedLanguage,
+  );
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<LanguageId>(languages[0].id);
 
@@ -38,6 +42,7 @@ export default function LanguageSelection() {
   }, [isSearching, query]);
 
   const handleConfirm = () => {
+    setSelectedLanguage(selectedId);
     router.replace("/");
   };
 

@@ -1,4 +1,10 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(powershell -NoProfile -Command 'Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '\\\\''*expo start*'\\\\'' -or $_.CommandLine -like '\\\\''*metro*'\\\\'' } | Select-Object ProcessId, CommandLine')",
+      "Bash(powershell -NoProfile -Command 'Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '\\\\''*expo*start*'\\\\'' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }; Start-Sleep -Seconds 1; Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '\\\\''*expo*start*'\\\\'' -or $_.CommandLine -like '\\\\''*metro*'\\\\'' } | Select-Object ProcessId, CommandLine')"
+    ]
+  },
   "enabledPlugins": {
     "expo@claude-plugins-official": true
   }
