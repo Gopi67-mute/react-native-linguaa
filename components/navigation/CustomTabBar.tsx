@@ -26,7 +26,7 @@ const TAB_ICONS: Record<string, { active: IconName; inactive: IconName }> = {
 };
 
 const TAB_BAR_HEIGHT = 64;
-const CIRCLE_SIZE = 48;
+const CIRCLE_SIZE = 43;
 
 export function CustomTabBar({
   state,
@@ -48,7 +48,9 @@ export function CustomTabBar({
 
   const circleStyle = useAnimatedStyle(() => ({
     transform: [
-      { translateX: activeIndex.value * tabWidth + (tabWidth - CIRCLE_SIZE) / 2 },
+      {
+        translateX: activeIndex.value * tabWidth + (tabWidth - CIRCLE_SIZE) / 2,
+      },
     ],
   }));
 
@@ -65,11 +67,8 @@ export function CustomTabBar({
         {barWidth > 0 && (
           <Animated.View
             pointerEvents="none"
-            style={[
-              styles.circle,
-              { top: (TAB_BAR_HEIGHT - CIRCLE_SIZE) / 2 },
-              circleStyle,
-            ]}
+            className="absolute w-12 h-12 rounded-full bg-primary"
+            style={[{ top: (TAB_BAR_HEIGHT - CIRCLE_SIZE) / 2 }, circleStyle]}
           />
         )}
 
@@ -127,12 +126,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 12,
     elevation: 8,
-  },
-  circle: {
-    position: "absolute",
-    width: CIRCLE_SIZE,
-    height: CIRCLE_SIZE,
-    borderRadius: CIRCLE_SIZE / 2,
-    backgroundColor: colors.primary,
   },
 });

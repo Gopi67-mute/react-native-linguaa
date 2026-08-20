@@ -31,7 +31,7 @@ export default function Onboarding() {
         <View className="flex-row items-center justify-center gap-2 mt-2">
           <Image
             source={images.mascotLogo}
-            style={styles.logoImage}
+            className="w-9 h-9"
             resizeMode="contain"
           />
           <Text className="text-h1 text-foreground">Lingua</Text>
@@ -46,7 +46,10 @@ export default function Onboarding() {
         </View>
 
         <View className="flex-1 items-center justify-center">
-          <View style={[styles.mascotWrapper, { width: mascotWidth }]}>
+          <View
+            className="relative items-center"
+            style={{ width: mascotWidth }}
+          >
             <View
               className="absolute top-20 left-0 rounded-2xl rounded-bl-md bg-[#EAF2FF] px-4 py-2 z-10"
               style={styles.bubbleShadow}
@@ -70,10 +73,8 @@ export default function Onboarding() {
 
             <Image
               source={images.mascotWelcome}
-              style={[
-                styles.mascotImage,
-                { width: mascotWidth, height: mascotHeight },
-              ]}
+              className="mt-10"
+              style={{ width: mascotWidth, height: mascotHeight }}
               resizeMode="contain"
             />
           </View>
@@ -99,9 +100,6 @@ export default function Onboarding() {
 
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
-  logoImage: { width: 36, height: 36 },
-  mascotWrapper: { position: "relative", alignItems: "center" },
-  mascotImage: { marginTop: 40 },
   bubbleShadow: {
     shadowColor: colors.foreground,
     shadowOffset: { width: 0, height: 2 },

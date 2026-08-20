@@ -1,17 +1,35 @@
 import { useAuth, useUser } from "@clerk/expo";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Ionicons } from "@expo/vector-icons";
 import { Redirect, router } from "expo-router";
-import { Pressable, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { GradientButton } from "@/components/auth/GradientButton";
+import { ContinueLearningCard } from "@/components/home/ContinueLearningCard";
+import { DailyGoalCard } from "@/components/home/DailyGoalCard";
+import { PlanItemRow, type PlanItem } from "@/components/home/PlanItemRow";
+import { images } from "@/constants/images";
 import { getLanguageById } from "@/data/languages";
+import { getLessonsByUnit } from "@/data/lessons";
+import { getUnitsByLanguage } from "@/data/units";
 import { useLanguageStore } from "@/store/language-store";
+import { useProgressStore } from "@/store/progress-store";
+import { colors } from "@/theme";
+import type { LanguageId } from "@/types/learning";
+
+const GREETINGS: Record<LanguageId, string> = {
+  es: "Hola",
+  fr: "Salut",
+  ja: "こんにちは",
+};
 
 export default function Home() {
-  const { isLoaded, isSignedIn, signOut } = useAuth();
+  const { isLoaded, isSignedIn } = useAuth();
   const { user } = useUser();
   const selectedLanguage = useLanguageStore((state) => state.selectedLanguage);
   const hasHydrated = useLanguageStore((state) => state.hasHydrated);
+  const completedPlanKeys = useProgressStore((state) => state.completedPlanKeys);
+  const streak = useProgressStore((state) => state.streak);
+  const toggleCompleted = useProgressStore((state) => state.toggleCompleted);
 
   if (!isLoaded || !hasHydrated) {
     return null;
@@ -26,47 +44,124 @@ export default function Home() {
   }
 
   const language = getLanguageById(selectedLanguage);
+  const currentUnit = language
+    ? getUnitsByLanguage(language.id)[0]
+    : undefined;
+  const nextLesson = currentUnit
+    ? getLessonsByUnit(currentUnit.id)[0]
+    : undefined;
 
-  const handleSignOut = async () => {
-    await signOut();
-    router.replace("/sign-in");
-  };
+  const planItems: PlanItem[] = nextLesson
+    ? [
+        {
+          id: "lesson",
+          icon: "book",
+          iconBackground: colors.primary,
+          title: "Lesson",
+          subtitle: nextLesson.title,
+          xp: nextLesson.xpReward,
+        },
+        {
+          id: "conversation",
+          icon: "headset",
+          iconBackground: colors.primary,
+          title: "AI Conversation",
+          subtitle: nextLesson.aiTeacher.focusAreas.slice(0, 2).join(" & "),
+          xp: 5,
+        },
+        {
+          id: "vocabulary",
+          icon: "chatbubble-ellipses",
+          iconBackground: colors.error,
+          title: "New words",
+          subtitle: `${nextLesson.vocabulary.length} words`,
+          xp: 5,
+        },
+      ]
+    : [];
 
-  const handleClearStorage = async () => {
-    await AsyncStorage.clear();
-    useLanguageStore.setState({ selectedLanguage: null });
-  };
+  const planKey = (itemId: string) => `${nextLesson?.id}:${itemId}`;
+  const goalXp = planItems.reduce((sum, item) => sum + item.xp, 0);
+  const completedXp = planItems
+    .filter((item) => completedPlanKeys.includes(planKey(item.id)))
+    .reduce((sum, item) => sum + item.xp, 0);
+
+  const goToLearn = () => router.push("/learn");
 
   return (
-    <View className="flex-1 items-center justify-center px-6">
-      <Text className="text-h1 mb-2 text-primary-deep">
-        You&apos;re signed in as {user?.firstName ?? "User"}!
-      </Text>
-      <Text className="text-body-lg text-foreground mb-4 text-center">
-        {user?.primaryEmailAddress?.emailAddress ?? "No email on file"}
-      </Text>
-      {language && (
-        <Text className="text-body-md text-blue-500 mb-6 text-center font-semibold">
-          Learning {language.flagEmoji} {language.name}
-        </Text>
-      )}
-      <GradientButton label="Sign Out" onPress={handleSignOut} />
-
-      <Pressable
-        onPress={() => router.push("/language-selection")}
-        className="mt-6"
-        hitSlop={8}
+    <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
+      <ScrollView
+        className="flex-1 px-6"
+        contentContainerStyle={{ paddingTop: 8, paddingBottom: 32 }}
+        showsVerticalScrollIndicator={false}
       >
-        <Text className="text-body-md text-black bg-yellow-500 rounded-2xl px-4 py-2">
-          Choose a language
-        </Text>
-      </Pressable>
+        <View className="flex-row items-center justify-between">
+          <View className="flex-row items-center gap-3 flex-1">
+            <View className="w-11 h-11 rounded-full bg-surface items-center justify-center">
+              <Text style={{ fontSize: 20 }}>{language?.flagEmoji}</Text>
+            </View>
+            <Text className="text-h3 text-foreground" numberOfLines={1}>
+              {language ? GREETINGS[language.id] : "Hi"},{" "}
+              {user?.firstName ?? "there"}! 👋
+            </Text>
+          </View>
 
-      <Pressable onPress={handleClearStorage} className="mt-4" hitSlop={8}>
-        <Text className="text-body-md text-white bg-error rounded-2xl px-4 py-2">
-          Clear AsyncStorage (test)
-        </Text>
-      </Pressable>
-    </View>
+          <View className="flex-row items-center gap-3">
+            <View className="flex-row items-center gap-1">
+              <Image
+                source={images.streakFire}
+                resizeMode="contain"
+                style={{ width: 22, height: 22 }}
+              />
+              <Text className="text-h4 text-foreground">{streak}</Text>
+            </View>
+            <Ionicons
+              name="notifications-outline"
+              size={22}
+              color={colors.foreground}
+            />
+          </View>
+        </View>
+
+        <View className="mt-6">
+          <DailyGoalCard completedXp={completedXp} goalXp={goalXp} />
+        </View>
+
+        {language && (
+          <View className="mt-4">
+            <ContinueLearningCard
+              languageName={language.name}
+              flagEmoji={language.flagEmoji}
+              unitLabel={
+                currentUnit
+                  ? `Unit ${currentUnit.order} • ${currentUnit.title}`
+                  : ""
+              }
+              onPress={goToLearn}
+            />
+          </View>
+        )}
+
+        {planItems.length > 0 && (
+          <View className="mt-8">
+            <View className="flex-row items-center justify-between mb-2">
+              <Text className="text-h4 text-foreground">Today&apos;s plan</Text>
+              <Pressable onPress={goToLearn} hitSlop={8}>
+                <Text className="text-body-md text-primary">View all</Text>
+              </Pressable>
+            </View>
+
+            {planItems.map((item) => (
+              <PlanItemRow
+                key={item.id}
+                item={item}
+                completed={completedPlanKeys.includes(planKey(item.id))}
+                onToggle={() => toggleCompleted(planKey(item.id))}
+              />
+            ))}
+          </View>
+        )}
+      </ScrollView>
+    </SafeAreaView>
   );
 }

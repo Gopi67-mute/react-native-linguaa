@@ -2,7 +2,18 @@
   "permissions": {
     "allow": [
       "Bash(powershell -NoProfile -Command 'Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '\\\\''*expo start*'\\\\'' -or $_.CommandLine -like '\\\\''*metro*'\\\\'' } | Select-Object ProcessId, CommandLine')",
-      "Bash(powershell -NoProfile -Command 'Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '\\\\''*expo*start*'\\\\'' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }; Start-Sleep -Seconds 1; Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '\\\\''*expo*start*'\\\\'' -or $_.CommandLine -like '\\\\''*metro*'\\\\'' } | Select-Object ProcessId, CommandLine')"
+      "Bash(powershell -NoProfile -Command 'Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '\\\\''*expo*start*'\\\\'' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }; Start-Sleep -Seconds 1; Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '\\\\''*expo*start*'\\\\'' -or $_.CommandLine -like '\\\\''*metro*'\\\\'' } | Select-Object ProcessId, CommandLine')",
+      "Bash(timeout 60 bash -c 'until curl -sf http://localhost:8090 >/dev/null; do sleep 2; done')",
+      "Bash(mkdir -p .scratch-shots)",
+      "Bash(node .scratch-verify-home.mjs)",
+      "Bash(NODE_PATH=\"/c/Users/PALANI/AppData/Local/npm-cache/_npx/e41f203b7505f1fb/node_modules\" node --experimental-vm-modules -e \"console.log\\('ok'\\)\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" --max-time 8 https://api.clerk.com)",
+      "Bash(curl -s --max-time 8 -o /dev/null -w \"%{http_code}\\\\n\" https://clerk-telemetry.com)",
+      "Bash(curl -s http://localhost:8090/)",
+      "Bash(lsof -ti:8090 -sTCP:LISTEN)"
+    ],
+    "additionalDirectories": [
+      "\\tmp"
     ]
   },
   "enabledPlugins": {
