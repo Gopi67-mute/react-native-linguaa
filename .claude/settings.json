@@ -1,8 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(powershell -NoProfile -Command 'Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '\\\\''*expo start*'\\\\'' -or $_.CommandLine -like '\\\\''*metro*'\\\\'' } | Select-Object ProcessId, CommandLine')",
-      "Bash(powershell -NoProfile -Command 'Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '\\\\''*expo*start*'\\\\'' } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }; Start-Sleep -Seconds 1; Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '\\\\''*expo*start*'\\\\'' -or $_.CommandLine -like '\\\\''*metro*'\\\\'' } | Select-Object ProcessId, CommandLine')",
+      "Bash(powershell -NoProfile -Command 'Get-CimInstance Win32_Process | Where-Object { $_.CommandLine.ToLower().Contains('\\\\''expo start'\\\\'') -or $_.CommandLine.ToLower().Contains('\\\\''metro'\\\\'') } | Select-Object ProcessId, CommandLine')",
+      "Bash(powershell -NoProfile -Command 'Get-CimInstance Win32_Process | Where-Object { ($_.CommandLine.ToLower().Contains('\\\\''expo'\\\\'') -and $_.CommandLine.ToLower().Contains('\\\\''start'\\\\'')) } | ForEach-Object { Stop-Process -Id $_.ProcessId -Force -ErrorAction SilentlyContinue }; Start-Sleep -Seconds 1; Get-CimInstance Win32_Process | Where-Object { ($_.CommandLine.ToLower().Contains('\\\\''expo'\\\\'') -and $_.CommandLine.ToLower().Contains('\\\\''start'\\\\'')) -or $_.CommandLine.ToLower().Contains('\\\\''metro'\\\\'') } | Select-Object ProcessId, CommandLine')",
       "Bash(timeout 60 bash -c 'until curl -sf http://localhost:8090 >/dev/null; do sleep 2; done')",
       "Bash(mkdir -p .scratch-shots)",
       "Bash(node .scratch-verify-home.mjs)",
