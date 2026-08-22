@@ -25,46 +25,6 @@ export const languages: Language[] = [
     learners: "12.7M learners",
     popular: true,
   },
-  {
-    id: "ko",
-    name: "Korean",
-    nativeName: "한국어",
-    flagEmoji: "🇰🇷",
-    learners: "9.3M learners",
-    popular: true,
-  },
-  {
-    id: "de",
-    name: "German",
-    nativeName: "Deutsch",
-    flagEmoji: "🇩🇪",
-    learners: "8.1M learners",
-    popular: true,
-  },
-  {
-    id: "zh",
-    name: "Chinese",
-    nativeName: "中文",
-    flagEmoji: "🇨🇳",
-    learners: "7.4M learners",
-    popular: true,
-  },
-  {
-    id: "it",
-    name: "Italian",
-    nativeName: "Italiano",
-    flagEmoji: "🇮🇹",
-    learners: "4.9M learners",
-    popular: false,
-  },
-  {
-    id: "pt",
-    name: "Portuguese",
-    nativeName: "Português",
-    flagEmoji: "🇵🇹",
-    learners: "3.6M learners",
-    popular: false,
-  },
 ];
 
 export function getLanguageById(id: string): Language | undefined {

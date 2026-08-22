@@ -1,15 +1,7 @@
 // Core types for the hardcoded learning content system.
 // Content lives in data/languages.ts, data/units.ts, and data/lessons.ts.
 
-export type LanguageId =
-  | "es"
-  | "fr"
-  | "ja"
-  | "ko"
-  | "de"
-  | "zh"
-  | "it"
-  | "pt";
+export type LanguageId = "es" | "fr" | "ja";
 
 export interface Language {
   id: LanguageId;

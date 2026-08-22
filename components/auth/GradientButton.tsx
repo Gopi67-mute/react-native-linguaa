@@ -18,7 +18,8 @@ export function GradientButton({
     <Pressable
       onPress={onPress}
       disabled={disabled}
-      style={[styles.shadow, disabled && styles.disabled]}
+      className={disabled ? "opacity-60" : undefined}
+      style={styles.shadow}
     >
       <LinearGradient
         colors={[colors.primary, colors.primaryDeep]}
@@ -47,8 +48,5 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 10,
     elevation: 4,
-  },
-  disabled: {
-    opacity: 0.6,
   },
 });
