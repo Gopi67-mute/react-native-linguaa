@@ -26,7 +26,9 @@ const TAB_ICONS: Record<string, { active: IconName; inactive: IconName }> = {
 };
 
 const TAB_BAR_HEIGHT = 64;
-const CIRCLE_SIZE = 43;
+const CIRCLE_SIZE = 48;
+const ROW_HORIZONTAL_PADDING = 16;
+const ROW_LEFT_INSET = 8;
 
 export function CustomTabBar({
   state,
@@ -35,7 +37,10 @@ export function CustomTabBar({
 }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const [barWidth, setBarWidth] = useState(0);
-  const tabWidth = state.routes.length > 0 ? barWidth / state.routes.length : 0;
+  const tabWidth =
+    state.routes.length > 0
+      ? (barWidth - ROW_HORIZONTAL_PADDING) / state.routes.length
+      : 0;
 
   const activeIndex = useSharedValue(state.index);
 
@@ -49,7 +54,10 @@ export function CustomTabBar({
   const circleStyle = useAnimatedStyle(() => ({
     transform: [
       {
-        translateX: activeIndex.value * tabWidth + (tabWidth - CIRCLE_SIZE) / 2,
+        translateX:
+          ROW_LEFT_INSET +
+          activeIndex.value * tabWidth +
+          (tabWidth - CIRCLE_SIZE) / 2,
       },
     ],
   }));
@@ -61,8 +69,7 @@ export function CustomTabBar({
     >
       <View
         onLayout={(event) => setBarWidth(event.nativeEvent.layout.width)}
-        style={{ height: TAB_BAR_HEIGHT }}
-        className="flex-row items-center px-2"
+        className="flex-row items-center px-2 h-16"
       >
         {barWidth > 0 && (
           <Animated.View
@@ -90,12 +97,23 @@ export function CustomTabBar({
             }
           };
 
+          const onLongPress = () => {
+            navigation.emit({
+              type: "tabLongPress",
+              target: route.key,
+            });
+          };
+
           return (
             <Pressable
               key={route.key}
               onPress={onPress}
-              className="flex-1 items-center justify-center"
-              style={{ height: TAB_BAR_HEIGHT }}
+              onLongPress={onLongPress}
+              accessibilityRole="tab"
+              accessibilityState={{ selected: isFocused }}
+              accessibilityLabel={options.tabBarAccessibilityLabel ?? label}
+              testID={options.tabBarButtonTestID}
+              className="flex-1 items-center justify-center h-16"
             >
               {isFocused ? (
                 <Ionicons name={icons.active} size={22} color="#fff" />

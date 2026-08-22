@@ -12,7 +12,7 @@ import { getLanguageById } from "@/data/languages";
 import { getLessonsByUnit } from "@/data/lessons";
 import { getUnitsByLanguage } from "@/data/units";
 import { useLanguageStore } from "@/store/language-store";
-import { useProgressStore } from "@/store/progress-store";
+import { todayKey, useProgressStore } from "@/store/progress-store";
 import { colors } from "@/theme";
 import type { LanguageId } from "@/types/learning";
 
@@ -80,7 +80,7 @@ export default function Home() {
       ]
     : [];
 
-  const planKey = (itemId: string) => `${nextLesson?.id}:${itemId}`;
+  const planKey = (itemId: string) => `${todayKey()}:${nextLesson?.id}:${itemId}`;
   const goalXp = planItems.reduce((sum, item) => sum + item.xp, 0);
   const completedXp = planItems
     .filter((item) => completedPlanKeys.includes(planKey(item.id)))

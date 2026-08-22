@@ -40,6 +40,9 @@ export function PlanItemRow({ item, completed, onToggle }: PlanItemRowProps) {
       <Pressable
         onPress={onToggle}
         hitSlop={8}
+        accessibilityRole="checkbox"
+        accessibilityState={{ checked: completed }}
+        accessibilityLabel={`${item.title}, ${completed ? "completed" : "incomplete"}`}
         className="w-7 h-7 rounded-full items-center justify-center"
         style={
           completed

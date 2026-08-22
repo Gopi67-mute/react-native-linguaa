@@ -1,6 +1,7 @@
 import { useAuth, useUser } from "@clerk/expo";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -21,9 +22,20 @@ export default function Profile() {
   const email = user?.primaryEmailAddress?.emailAddress ?? "No email on file";
   const initial = fullName.charAt(0).toUpperCase();
 
+  const [isSigningOut, setIsSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState<string | null>(null);
+
   const handleSignOut = async () => {
-    await signOut();
-    router.replace("/sign-in");
+    setSignOutError(null);
+    setIsSigningOut(true);
+    try {
+      await signOut();
+      router.replace("/sign-in");
+    } catch (err) {
+      console.error("Sign out error:", err);
+      setSignOutError("Something went wrong. Please try again.");
+      setIsSigningOut(false);
+    }
   };
 
   return (
@@ -65,12 +77,22 @@ export default function Profile() {
           </Pressable>
         </View>
 
+        {signOutError && (
+          <Text className="text-body-sm text-error mb-2 text-center">
+            {signOutError}
+          </Text>
+        )}
+
         <Pressable
           onPress={handleSignOut}
+          disabled={isSigningOut}
           className="flex-row items-center justify-center gap-2 bg-error/10 rounded-2xl py-4"
+          style={isSigningOut ? { opacity: 0.5 } : undefined}
         >
           <Ionicons name="log-out-outline" size={20} color={colors.error} />
-          <Text className="text-h4 text-error">Sign Out</Text>
+          <Text className="text-h4 text-error">
+            {isSigningOut ? "Signing Out..." : "Sign Out"}
+          </Text>
         </Pressable>
       </View>
     </SafeAreaView>
