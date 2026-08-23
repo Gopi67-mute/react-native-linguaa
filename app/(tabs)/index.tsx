@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { Redirect, router } from "expo-router";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { usePostHog } from "posthog-react-native";
 
 import { ContinueLearningCard } from "@/components/home/ContinueLearningCard";
 import { DailyGoalCard } from "@/components/home/DailyGoalCard";
@@ -25,6 +26,7 @@ const GREETINGS: Record<LanguageId, string> = {
 export default function Home() {
   const { isLoaded, isSignedIn } = useAuth();
   const { user } = useUser();
+  const posthog = usePostHog();
   const selectedLanguage = useLanguageStore((state) => state.selectedLanguage);
   const hasHydrated = useLanguageStore((state) => state.hasHydrated);
   const completedPlanKeys = useProgressStore((state) => state.completedPlanKeys);
@@ -151,14 +153,30 @@ export default function Home() {
               </Pressable>
             </View>
 
-            {planItems.map((item) => (
-              <PlanItemRow
-                key={item.id}
-                item={item}
-                completed={completedPlanKeys.includes(planKey(item.id))}
-                onToggle={() => toggleCompleted(planKey(item.id))}
-              />
-            ))}
+            {planItems.map((item) => {
+              const key = planKey(item.id)
+              const isCompleted = completedPlanKeys.includes(key)
+              return (
+                <PlanItemRow
+                  key={item.id}
+                  item={item}
+                  completed={isCompleted}
+                  onToggle={() => {
+                    // Only fire the event when marking as completed (not uncompleting)
+                    if (!isCompleted) {
+                      posthog.capture('plan_item_completed', {
+                        item_id: item.id,
+                        item_title: item.title,
+                        item_xp: item.xp,
+                        language_id: selectedLanguage,
+                        streak_before: streak,
+                      })
+                    }
+                    toggleCompleted(key)
+                  }}
+                />
+              )
+            })}
           </View>
         )}
       </ScrollView>

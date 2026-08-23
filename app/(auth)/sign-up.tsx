@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useSignUp } from "@clerk/expo";
 import { useSSO } from "@clerk/expo/experimental";
+import { usePostHog } from "posthog-react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import {
@@ -26,6 +27,7 @@ type OAuthStrategy = "oauth_google" | "oauth_facebook" | "oauth_apple";
 export default function SignUp() {
   const { signUp } = useSignUp();
   const { startSSOFlow } = useSSO();
+  const posthog = usePostHog();
 
   const [email, setEmail] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
@@ -83,6 +85,13 @@ export default function SignUp() {
   };
 
   const handleVerified = () => {
+    // Identify the newly signed-up user by their Clerk ID
+    if (signUp.createdUserId) {
+      posthog.identify(signUp.createdUserId, {
+        $set_once: { sign_up_date: new Date().toISOString() },
+      })
+    }
+    posthog.capture('user_signed_up', { auth_method: 'email' })
     setIsVerifying(false);
     router.replace("/");
   };
@@ -90,8 +99,17 @@ export default function SignUp() {
   const handleSocialAuth = async (strategy: OAuthStrategy) => {
     setFormError(null);
     try {
-      const { createdSessionId } = await startSSOFlow({ strategy });
+      const { createdSessionId, createdUserId } = await startSSOFlow({ strategy });
       if (createdSessionId) {
+        // Identify user by their Clerk ID from SSO
+        if (createdUserId) {
+          posthog.identify(createdUserId, {
+            $set_once: { sign_up_date: new Date().toISOString() },
+          })
+        }
+        posthog.capture('social_signup_completed', {
+          auth_method: strategy.replace('oauth_', ''),
+        })
         router.replace("/");
       }
     } catch (err) {

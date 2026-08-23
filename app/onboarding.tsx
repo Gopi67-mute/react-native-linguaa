@@ -1,5 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { usePostHog } from "posthog-react-native";
 import {
   Image,
   Pressable,
@@ -19,6 +20,7 @@ const HORIZONTAL_PADDING = 24 * 2; // matches `px-6` on the screen container
 
 export default function Onboarding() {
   const { width: windowWidth } = useWindowDimensions();
+  const posthog = usePostHog();
   const mascotWidth = Math.min(
     MASCOT_MAX_WIDTH,
     windowWidth - HORIZONTAL_PADDING
@@ -81,7 +83,10 @@ export default function Onboarding() {
         </View>
 
         <Pressable
-          onPress={() => router.push("/sign-up")}
+          onPress={() => {
+            posthog.capture('onboarding_started')
+            router.push('/sign-up')
+          }}
           className="flex-row items-center justify-between bg-primary-deep rounded-full px-6 py-4 mb-6"
           style={styles.buttonShadow}
         >
