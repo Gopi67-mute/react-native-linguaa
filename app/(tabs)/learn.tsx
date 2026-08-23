@@ -12,7 +12,6 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { LessonRow, type LessonStatus } from "@/components/learn/LessonRow";
-import { images } from "@/constants/images";
 import { getLessonsByUnit } from "@/data/lessons";
 import { getUnitsByLanguage } from "@/data/units";
 import { useLanguageStore } from "@/store/language-store";
@@ -95,16 +94,16 @@ export default function Learn() {
         contentContainerStyle={{ paddingBottom: 32 }}
       >
         {heroImage && (
-          <View className="bg-surface" style={{ width: "100%", height: 240 }}>
+          <View className="bg-surface w-full h-[240px]">
             <Image
-              source={images.palace}
+              source={{ uri: heroImage }}
               resizeMode="contain"
-              style={{ width: "100%", height: "100%" }}
+              className="w-full h-full"
             />
           </View>
         )}
 
-        <View className="px-6" style={{ marginTop: -28 }}>
+        <View className="px-6 -mt-7">
           <View
             className="flex-row bg-background rounded-full p-1"
             style={styles.shadow}

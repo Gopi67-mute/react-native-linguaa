@@ -121,7 +121,7 @@ function AudioLessonSession({ lesson }: { lesson: Lesson }) {
 
           <View className="flex-1 ml-1">
             <Text className="text-h3 text-foreground">AI Teacher</Text>
-            <View className="flex-row items-center mt-0.5" style={{ gap: 6 }}>
+            <View className="flex-row items-center mt-0.5 gap-1.5">
               <View className="w-2 h-2 rounded-full bg-green" />
               <Text className="text-body-sm text-muted-foreground">
                 Online
@@ -129,7 +129,7 @@ function AudioLessonSession({ lesson }: { lesson: Lesson }) {
             </View>
           </View>
 
-          <View className="flex-row items-center" style={{ gap: 8 }}>
+          <View className="flex-row items-center gap-2">
             <View className="bg-surface rounded-full px-3 py-1.5">
               <Text className="text-body-sm text-foreground">
                 {formatTimer(elapsedSeconds)}

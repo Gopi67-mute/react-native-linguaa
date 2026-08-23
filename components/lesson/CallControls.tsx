@@ -21,9 +21,11 @@ function ControlButton({
   onPress,
 }: ControlButtonProps) {
   return (
-    <View className="items-center" style={{ gap: 6 }}>
+    <View className="items-center gap-1.5">
       <Pressable
         onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={label}
         className={`w-14 h-14 rounded-full items-center justify-center ${
           active ? activeBgClassName : "bg-surface"
         }`}

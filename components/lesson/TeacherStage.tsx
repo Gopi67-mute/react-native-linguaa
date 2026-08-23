@@ -38,26 +38,26 @@ export function TeacherStage({
   const isFinalStep = step.kind === "complete";
 
   return (
-    <View style={{ flex: 1 }}>
+    <View className="flex-1">
       <Image
         source={{ uri: STAGE_BACKGROUND_URI }}
         resizeMode="cover"
-        style={StyleSheet.absoluteFillObject}
+        className="absolute inset-0"
       />
-      <View style={[StyleSheet.absoluteFillObject, styles.scrim]} />
+      <View className="absolute inset-0 bg-[rgba(13,19,43,0.35)]" />
 
       <View className="flex-1 items-center justify-center px-6">
         <Image
           source={images.mascotWelcome}
           resizeMode="contain"
-          style={{ width: 200, height: 200 }}
+          className="w-[200px] h-[200px]"
         />
       </View>
 
       <View className="px-4">
         <View
-          className="bg-background rounded-2xl px-4 py-3 flex-row items-start"
-          style={[styles.bubbleShadow, { gap: 12 }]}
+          className="bg-background rounded-2xl px-4 py-3 flex-row items-start gap-3"
+          style={styles.bubbleShadow}
         >
           <View className="flex-1">
             <Text className="text-h4 text-foreground">{step.line}</Text>
@@ -95,9 +95,6 @@ export function TeacherStage({
 }
 
 const styles = StyleSheet.create({
-  scrim: {
-    backgroundColor: "rgba(13, 19, 43, 0.35)",
-  },
   bubbleShadow: {
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },

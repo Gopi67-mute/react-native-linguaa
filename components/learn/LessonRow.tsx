@@ -60,7 +60,7 @@ export function LessonRow({ lesson, status, onPress }: LessonRowProps) {
         <Image
           source={{ uri: lesson.image }}
           resizeMode="cover"
-          style={{ width: 48, height: 48, borderRadius: 12 }}
+          className="w-12 h-12 rounded-xl"
         />
       )}
       {isLocked && (
