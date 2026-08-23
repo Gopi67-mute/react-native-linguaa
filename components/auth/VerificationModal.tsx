@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useEffect, useRef, useState } from "react";
 import {
   KeyboardAvoidingView,
@@ -8,11 +9,24 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
 import { colors } from "@/theme";
 
 const CODE_LENGTH = 6;
+
+function getVerificationErrorMessage(error: unknown) {
+  if (error && typeof error === "object") {
+    const authError = error as { longMessage?: unknown; message?: unknown };
+    if (typeof authError.longMessage === "string") {
+      return authError.longMessage;
+    }
+    if (typeof authError.message === "string") {
+      return authError.message;
+    }
+  }
+
+  return "The verification code is invalid or has expired. Please try again.";
+}
 
 type VerificationModalProps = {
   visible: boolean;
@@ -51,14 +65,20 @@ export function VerificationModal({
 
     if (digitsOnly.length === CODE_LENGTH) {
       setIsChecking(true);
-      const errorMessage = await onVerify(digitsOnly);
-      setIsChecking(false);
+      try {
+        const errorMessage = await onVerify(digitsOnly);
 
-      if (errorMessage) {
-        setError(errorMessage);
+        if (errorMessage) {
+          setError(errorMessage);
+          setCode("");
+        } else {
+          onVerified();
+        }
+      } catch (verificationError) {
+        setError(getVerificationErrorMessage(verificationError));
         setCode("");
-      } else {
-        onVerified();
+      } finally {
+        setIsChecking(false);
       }
     }
   };
@@ -79,8 +99,17 @@ export function VerificationModal({
               <Text className="text-h2 text-foreground flex-1 pr-4">
                 Verify your email
               </Text>
-              <Pressable onPress={onClose} hitSlop={8}>
-                <Ionicons name="close" size={24} color={colors.mutedForeground} />
+              <Pressable
+                onPress={onClose}
+                accessibilityRole="button"
+                accessibilityLabel="Close verification modal"
+                hitSlop={8}
+              >
+                <Ionicons
+                  name="close"
+                  size={24}
+                  color={colors.mutedForeground}
+                />
               </Pressable>
             </View>
 
@@ -109,7 +138,9 @@ export function VerificationModal({
                           : "border-border"
                     }`}
                   >
-                    <Text className="text-h2 text-foreground">{digit ?? ""}</Text>
+                    <Text className="text-h2 text-foreground">
+                      {digit ?? ""}
+                    </Text>
                   </View>
                 );
               })}
@@ -123,6 +154,8 @@ export function VerificationModal({
               ref={inputRef}
               value={code}
               onChangeText={handleChangeText}
+              accessibilityLabel="6-digit verification code"
+              accessibilityHint="Enter the verification code sent to your email"
               keyboardType="number-pad"
               maxLength={CODE_LENGTH}
               editable={!isChecking}

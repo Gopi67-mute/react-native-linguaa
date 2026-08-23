@@ -32,6 +32,9 @@ export default function Home() {
   const completedPlanKeys = useProgressStore((state) => state.completedPlanKeys);
   const streak = useProgressStore((state) => state.streak);
   const toggleCompleted = useProgressStore((state) => state.toggleCompleted);
+  const resetSelectedLanguage = useLanguageStore(
+    (state) => state.resetSelectedLanguage,
+  );
 
   if (!isLoaded || !hasHydrated) {
     return null;
@@ -178,6 +181,20 @@ export default function Home() {
               )
             })}
           </View>
+        )}
+
+        {__DEV__ && (
+          <Pressable
+            onPress={async () => {
+              await resetSelectedLanguage();
+              router.replace("/language-selection");
+            }}
+            className="mt-8 items-center"
+          >
+            <Text className="text-body-md text-error">
+              Reset language selection
+            </Text>
+          </Pressable>
         )}
       </ScrollView>
     </SafeAreaView>
