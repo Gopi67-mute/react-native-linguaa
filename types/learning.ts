@@ -19,6 +19,7 @@ export interface Unit {
   description: string;
   order: number;
   color: string;
+  image?: string;
 }
 
 export interface VocabularyItem {
@@ -60,6 +61,7 @@ export interface Lesson {
   goal: string;
   order: number;
   xpReward: number;
+  image?: string;
   vocabulary: VocabularyItem[];
   phrases: Phrase[];
   activities: Activity[];
