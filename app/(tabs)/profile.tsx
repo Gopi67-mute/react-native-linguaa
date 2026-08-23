@@ -4,6 +4,7 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { usePostHog } from "posthog-react-native";
 
 import { getLanguageById } from "@/data/languages";
 import { useLanguageStore } from "@/store/language-store";
@@ -22,6 +23,7 @@ export default function Profile() {
   const email = user?.primaryEmailAddress?.emailAddress ?? "No email on file";
   const initial = fullName.charAt(0).toUpperCase();
 
+  const posthog = usePostHog();
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [signOutError, setSignOutError] = useState<string | null>(null);
 
@@ -29,6 +31,8 @@ export default function Profile() {
     setSignOutError(null);
     setIsSigningOut(true);
     try {
+      posthog.capture('user_signed_out', { language_id: selectedLanguage })
+      posthog.reset()
       await signOut();
       router.replace("/sign-in");
     } catch (err) {

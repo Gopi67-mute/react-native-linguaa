@@ -9,7 +9,8 @@
       "Bash(curl -s --max-time 8 -o /dev/null -w \"%{http_code}\\\\n\" https://clerk-telemetry.com)",
       "Bash(curl -s http://localhost:8090/)",
       "Bash(lsof -ti:8090 -sTCP:LISTEN)",
-      "Bash(node -e \"const s=require\\('c:/Users/PALANI/Duoligo/.claude/settings.json'\\); console.log\\(JSON.stringify\\(s,null,2\\)\\)\")"
+      "Bash(node -e \"const s=require\\('c:/Users/PALANI/Duoligo/.claude/settings.json'\\); console.log\\(JSON.stringify\\(s,null,2\\)\\)\")",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/posthog-react-native/package.json'\\).version\\)\")"
     ],
     "additionalDirectories": [
       "\\tmp"

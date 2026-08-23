@@ -4,7 +4,7 @@ Study the existing auth screens and current mocked auth flow, then replace the m
 
 Keep the existing UI and navigation flow intact. Implement passwordless, email-code based Sign Up and Sign In (six-digit verification code, matching the existing modal), social auth where supported, and verification code handling through Clerk.
 
-After successful verification/authentication, navigate to the home route (`/`). For the route guard, wait until Clerk's `isLoaded` is true before redirecting — don't navigate while it's still loading. Once loaded, send the user to `/` if `isSignedIn` is true, otherwise to `/onboarding`.
+For email-code sign-up and sign-in, await the corresponding Clerk `signUp.finalize()` or `signIn.finalize()` call after the six-digit code is verified, and navigate to the home route (`/`) only after finalization succeeds. Do not use legacy `setActive({ session: createdSessionId })` for these flows. For the route guard, wait until Clerk's `isLoaded` is true before redirecting — don't navigate while it's still loading. Once loaded, send the user to `/` if `isSignedIn` is true, otherwise to `/onboarding`.
 
 Do not change the screen design. If there is any need, ask me before implementation
 

@@ -8,6 +8,7 @@ interface LanguageState {
   selectedLanguage: LanguageId | null;
   hasHydrated: boolean;
   setSelectedLanguage: (language: LanguageId) => void;
+  resetSelectedLanguage: () => Promise<void>;
   setHasHydrated: (hasHydrated: boolean) => void;
 }
 //instance of the store create zustand
@@ -17,6 +18,10 @@ export const useLanguageStore = create<LanguageState>()(
       selectedLanguage: null,
       hasHydrated: false,
       setSelectedLanguage: (language) => set({ selectedLanguage: language }),
+      resetSelectedLanguage: async () => {
+        set({ selectedLanguage: null });
+        await AsyncStorage.removeItem("language-storage");
+      },
       setHasHydrated: (hasHydrated) => set({ hasHydrated }),
     }),
     {

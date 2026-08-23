@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useSignIn } from "@clerk/expo";
 import { useSSO } from "@clerk/expo/experimental";
+import { usePostHog } from "posthog-react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import {
@@ -26,6 +27,7 @@ type OAuthStrategy = "oauth_google" | "oauth_facebook" | "oauth_apple";
 export default function SignIn() {
   const { signIn } = useSignIn();
   const { startSSOFlow } = useSSO();
+  const posthog = usePostHog();
 
   const [email, setEmail] = useState("");
   const [isVerifying, setIsVerifying] = useState(false);
@@ -65,6 +67,8 @@ export default function SignIn() {
   };
 
   const handleVerified = () => {
+    // AuthObserver in _layout.tsx identifies the user by Clerk ID once the session is active
+    posthog.capture('user_signed_in', { auth_method: 'email' })
     setIsVerifying(false);
     router.replace("/");
   };
@@ -74,6 +78,10 @@ export default function SignIn() {
     try {
       const { createdSessionId } = await startSSOFlow({ strategy });
       if (createdSessionId) {
+        // AuthObserver in _layout.tsx identifies the user by Clerk ID once the session is active
+        posthog.capture('social_signin_completed', {
+          auth_method: strategy.replace('oauth_', ''),
+        })
         router.replace("/");
       }
     } catch (err) {

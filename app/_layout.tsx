@@ -1,11 +1,14 @@
 import "../global.css";
 
-import { useEffect } from "react";
-import { ClerkProvider } from "@clerk/expo";
+import { useEffect, useRef } from "react";
+import { ClerkProvider, useUser } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
 import { useFonts } from "expo-font";
-import { Stack } from "expo-router";
+import { Stack, usePathname, useGlobalSearchParams } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import { PostHogProvider } from "posthog-react-native";
+
+import { posthog } from "@/lib/posthog";
 
 import { fontAssets } from "@/theme";
 
@@ -19,6 +22,9 @@ const publishableKey = process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY;
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts(fontAssets);
+  const pathname = usePathname();
+  const params = useGlobalSearchParams();
+  const previousPathname = useRef<string | undefined>(undefined);
 
   useEffect(() => {
     if (fontsLoaded) {
@@ -26,13 +32,61 @@ export default function RootLayout() {
     }
   }, [fontsLoaded]);
 
+  // Manual screen tracking for Expo Router
+  // @see https://posthog.com/docs/libraries/react-native#screen-tracking
+  useEffect(() => {
+    if (previousPathname.current !== pathname) {
+      posthog.screen(pathname, {
+        previous_screen: previousPathname.current ?? null,
+        ...params,
+      });
+      previousPathname.current = pathname;
+    }
+  }, [pathname, params]);
+
   if (!fontsLoaded) {
     return null;
   }
 
   return (
-    <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
-      <Stack screenOptions={{ headerShown: false }} />
-    </ClerkProvider>
+    <PostHogProvider
+      client={posthog}
+      autocapture={{
+        captureScreens: false, // Manual tracking with Expo Router
+        captureTouches: true,
+        propsToCapture: ['testID'],
+        maxElementsCaptured: 20,
+      }}
+    >
+      <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
+        {/* Identify authenticated users in PostHog whenever auth state changes */}
+        <AuthObserver />
+        <Stack screenOptions={{ headerShown: false }} />
+      </ClerkProvider>
+    </PostHogProvider>
   );
+}
+
+/**
+ * Identifies the current Clerk user in PostHog whenever auth state changes.
+ * Runs inside ClerkProvider so it has access to Clerk hooks.
+ * Handles first-time logins, sign-ups, and returning visitor sessions.
+ */
+function AuthObserver() {
+  const { user, isSignedIn } = useUser();
+
+  useEffect(() => {
+    if (isSignedIn && user) {
+      posthog.identify(user.id, {
+        $set: {
+          ...(user.firstName ? { first_name: user.firstName } : {}),
+          ...(user.lastName ? { last_name: user.lastName } : {}),
+        },
+        $set_once: { first_seen_date: new Date().toISOString() },
+      });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSignedIn, user?.id]); // user?.id is the stable identity key — re-running on the full object would cause thrashing
+
+  return null;
 }

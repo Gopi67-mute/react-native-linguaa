@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
+import { usePostHog } from "posthog-react-native";
 import {
   FlatList,
   Image,
@@ -23,6 +24,7 @@ export default function LanguageSelection() {
   const setSelectedLanguage = useLanguageStore(
     (state) => state.setSelectedLanguage,
   );
+  const posthog = usePostHog();
   const [query, setQuery] = useState("");
   const [selectedId, setSelectedId] = useState<LanguageId>(languages[0].id);
 
@@ -42,6 +44,12 @@ export default function LanguageSelection() {
   }, [isSearching, query]);
 
   const handleConfirm = () => {
+    const selectedLanguage = languages.find((l) => l.id === selectedId)
+    posthog.capture('language_selected', {
+      language_id: selectedId,
+      language_name: selectedLanguage?.name,
+      discovered_via_search: isSearching,
+    })
     setSelectedLanguage(selectedId);
     router.replace("/");
   };
