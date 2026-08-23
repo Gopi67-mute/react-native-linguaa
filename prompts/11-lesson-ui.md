@@ -8,4 +8,4 @@ Use assets from the assets folder and for each lesson selection use its respecti
 
 Each lesson card should still visually indicate status (completed, in progress, etc.) based on local state or mock data.
 
-@prompt_material/06-lesson-screen.png
+![alt text](../prompt_material/06-lesson-screen.png)

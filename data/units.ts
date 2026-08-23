@@ -8,6 +8,7 @@ export const units: Unit[] = [
     description: "Greetings, introductions, and everyday courtesy words.",
     order: 1,
     color: "#58CC02",
+    image: "https://picsum.photos/seed/es-u1/800/600",
   },
   {
     id: "fr-u1",
@@ -16,6 +17,7 @@ export const units: Unit[] = [
     description: "Greetings, introductions, and everyday courtesy words.",
     order: 1,
     color: "#1CB0F6",
+    image: "https://picsum.photos/seed/fr-u1/800/600",
   },
   {
     id: "ja-u1",
@@ -24,6 +26,7 @@ export const units: Unit[] = [
     description: "Greetings, introductions, and everyday courtesy words.",
     order: 1,
     color: "#FF4B4B",
+    image: "https://picsum.photos/seed/ja-u1/800/600",
   },
 ];
 
