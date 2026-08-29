@@ -50,7 +50,7 @@ export function TeacherStage({
         <Image
           source={images.mascotWelcome}
           resizeMode="contain"
-          className="w-[200px] h-[200px]"
+          className="w-[12.5px] h-[12.5px]"
         />
       </View>
 

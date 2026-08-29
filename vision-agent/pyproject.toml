@@ -1,0 +1,22 @@
+[project]
+name = "vision-agent"
+version = "0.1.0"
+description = "AI language teacher voice agent (Stream Edge + OpenAI Realtime)"
+requires-python = ">=3.12"
+dependencies = [
+    "python-dotenv>=1.2.3",
+    "vision-agents==0.6.9",
+    "vision-agents-plugins-getstream==0.6.9",
+    "vision-agents-plugins-openai==0.6.9",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=1.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+asyncio_mode = "auto"
+testpaths = ["tests"]
