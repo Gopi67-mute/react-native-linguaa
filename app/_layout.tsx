@@ -1,14 +1,19 @@
 import "../global.css";
 
-import { useEffect, useRef } from "react";
-import { ClerkProvider, useUser } from "@clerk/expo";
+import { useEffect, useRef, useState } from "react";
+import { ClerkProvider, useAuth, useUser } from "@clerk/expo";
 import { tokenCache } from "@clerk/expo/token-cache";
 import { useFonts } from "expo-font";
 import { Stack, usePathname, useGlobalSearchParams } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { PostHogProvider } from "posthog-react-native";
+import {
+  StreamVideo,
+  StreamVideoClient,
+} from "@stream-io/video-react-native-sdk";
 
 import { posthog } from "@/lib/posthog";
+import { fetchStreamSession } from "@/lib/stream-client";
 
 import { fontAssets } from "@/theme";
 
@@ -61,10 +66,60 @@ export default function RootLayout() {
       <ClerkProvider publishableKey={publishableKey} tokenCache={tokenCache}>
         {/* Identify authenticated users in PostHog whenever auth state changes */}
         <AuthObserver />
-        <Stack screenOptions={{ headerShown: false }} />
+        <StreamVideoRoot>
+          <Stack screenOptions={{ headerShown: false }} />
+        </StreamVideoRoot>
       </ClerkProvider>
     </PostHogProvider>
   );
+}
+
+/**
+ * Mounts a single Stream Video client for the whole signed-in session (see
+ * AGENTS.md AI/Stream rules — token minting stays server-side). Screens that
+ * need it read it back via `useStreamVideoClient()`. Renders children
+ * unwrapped while signed out or still connecting so navigation is never
+ * blocked on the call SDK.
+ */
+function StreamVideoRoot({ children }: { children: React.ReactNode }) {
+  const { isLoaded, isSignedIn, getToken } = useAuth();
+  const [client, setClient] = useState<StreamVideoClient>();
+
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn) {
+      setClient(undefined);
+      return;
+    }
+
+    let cancelled = false;
+    let current: StreamVideoClient | undefined;
+
+    (async () => {
+      const session = await fetchStreamSession(getToken);
+      if (cancelled) return;
+      current = StreamVideoClient.getOrCreateInstance({
+        apiKey: session.apiKey,
+        user: {
+          id: session.userId,
+          name: session.userName,
+          image: session.userImage,
+        },
+        token: session.token,
+        tokenProvider: async () => (await fetchStreamSession(getToken)).token,
+      });
+      setClient(current);
+    })().catch((err) => console.error("Stream video auth failed", err));
+
+    return () => {
+      cancelled = true;
+      current?.disconnectUser().catch((err) => console.error(err));
+      setClient(undefined);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isLoaded, isSignedIn]);
+
+  if (!client) return <>{children}</>;
+  return <StreamVideo client={client}>{children}</StreamVideo>;
 }
 
 /**
